@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Travel Itinerary Planner — AI-Powered Bayesian Travel Planning</title>
+  <meta name="description" content="Plan your perfect trip with AI-powered Bayesian probabilistic reasoning. Personalized itineraries, hidden gems, budget optimization and more." />
+  <link rel="stylesheet" href="css/theme.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈️</text></svg>" />
+  <style>
+    /* ── Index-page overrides ──────────────────── */
+    body { margin: 0; }
+
+    /* override original style.css surface vars */
+    .card {
+      background: var(--surface-01);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+    }
+    .card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+    .card-flat { background: var(--surface-02); box-shadow: none; border: 1px solid var(--border); }
+    .form-card { background: var(--surface-01); border: 1px solid var(--border); box-shadow: var(--shadow-lg); }
+
+    .form-input, .form-select {
+      background: var(--surface-02) !important;
+      border: 1.5px solid var(--border) !important;
+      color: var(--text-primary) !important;
+    }
+    .form-input:focus, .form-select:focus {
+      border-color: var(--border-active) !important;
+      background: var(--surface-01) !important;
+      box-shadow: 0 0 0 3px var(--primary-glow) !important;
+    }
+    .form-select option { background: var(--surface-01); color: var(--text-primary); }
+
+    .mood-chip {
+      background: var(--surface-02);
+      border-color: var(--border);
+    }
+    .mood-chip:hover { background: var(--surface-03); }
+    .mood-chip.selected { background: rgba(124,111,247,0.15); border-color: var(--primary); }
+    .mood-chip .label { color: var(--text-secondary); }
+    .mood-chip.selected .label { color: var(--primary); }
+
+    .chip { background: var(--surface-02); border-color: var(--border); color: var(--text-secondary); }
+    .chip:hover { background: var(--surface-03); color: var(--text-primary); }
+    .chip.selected { background: rgba(124,111,247,0.15); color: var(--primary); border-color: var(--primary); }
+
+    .weather-option { background: var(--surface-02); border-color: var(--border); color: var(--text-secondary); }
+    .weather-option:hover { background: var(--surface-03); color: var(--text-primary); }
+    .weather-option.selected { background: rgba(124,111,247,0.12); border-color: var(--primary); color: var(--primary); }
+
+    h1, h2, h3, h4, h5, h6 { color: var(--text-primary); }
+    .headline-lg, .headline-sm, .headline-md { color: var(--text-primary); }
+    .body-md { color: var(--text-secondary); }
+    .label-sm { color: var(--text-muted); }
+
+    .step-dot { background: var(--surface-03); border-color: var(--border); color: var(--text-secondary); }
+    .step-connector { background: var(--border); opacity: 1; }
+    .step.active .step-dot { background: var(--grad-primary); border-color: var(--primary); color: white; box-shadow: 0 0 0 6px var(--primary-glow); }
+    .step.done .step-dot { background: var(--secondary); border-color: var(--secondary); color: white; }
+    .step.active .step-label { color: var(--primary); }
+    .step.done .step-label { color: var(--secondary); }
+    .step.done .step-connector, .step-connector.done { background: var(--secondary) !important; opacity: 0.5; }
+
+    .btn-ghost { background: var(--surface-02); color: var(--text-primary); }
+    .btn-ghost:hover { background: var(--surface-03); }
+    .btn-outline { background: transparent; color: var(--primary); border-color: var(--border-active); }
+    .btn-outline:hover { background: rgba(124,111,247,0.1); }
+
+    /* Section background */
+    .section-alt { background: var(--surface-01); }
+
+    /* inputs range */
+    input[type="range"] { background: var(--surface-03); }
+    .section-tag {
+      background: rgba(124,111,247,0.12);
+      color: var(--primary);
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      border-radius: var(--radius-full); padding: 0.375rem 1rem;
+      font-size: 0.8125rem; font-weight: 600; margin-bottom: 1rem;
+    }
+    .feature-icon {
+      width: 52px; height: 52px; border-radius: var(--radius-lg);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; margin-bottom: 1rem;
+    }
+    .form-nav {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 2rem; padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+    .interests-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 0.5rem;
+    }
+    .budget-display {
+      text-align: center; font-family: var(--font-display);
+      font-size: 2rem; font-weight: 800;
+      background: var(--grad-primary);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; margin-bottom: 0.5rem;
+    }
+    .step-form-area { min-height: 420px; display: flex; flex-direction: column; }
+    .date-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .hero-stats { display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap; margin-top: 2rem; }
+    .hero-stat { text-align: center; }
+    .hero-stat-value { font-family: var(--font-display); font-size: 2rem; font-weight: 800; color: white; }
+    .hero-stat-label { font-size: 0.8rem; opacity: 0.7; }
+
+    /* Feature grid */
+    .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; }
+
+    /* Toast */
+    .toast { background: var(--surface-02); color: var(--text-primary); border: 1px solid var(--border); }
+
+    /* Loading overlay */
+    .loading-overlay { background: rgba(10,12,20,0.95); }
+    [data-theme="light"] .loading-overlay { background: rgba(242,244,252,0.95); }
+
+    /* Footer */
+    footer { background: var(--surface-01) !important; border-top: 1px solid var(--border); color: var(--text-secondary) !important; }
+
+    /* summary card */
+    #summaryCard { background: var(--surface-02) !important; border: 1px solid var(--border); }
+
+    @media (max-width: 768px) {
+      .feature-grid { grid-template-columns: 1fr; }
+      .date-pair { grid-template-columns: 1fr; }
+      .hero-stats { gap: 1.5rem; }
+    }
+  </style>
+</head>
+
+<body class="page-enter">
+
+  <!-- Sidebar Overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <!-- ─────────────── SIDEBAR ─────────────── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">✈️</div>
+      <span class="sidebar-logo-text">Voyager AI</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Main</div>
+      <a href="dashboard.html" class="sidebar-link">
+        <span class="sidebar-icon">🏠</span>
+        <span class="sidebar-text">Dashboard</span>
+      </a>
+      <a href="#planner" class="sidebar-link active">
+        <span class="sidebar-icon">🗺️</span>
+        <span class="sidebar-text">Plan a Trip</span>
+        <span class="sidebar-badge">AI</span>
+      </a>
+      <a href="results.html" class="sidebar-link">
+        <span class="sidebar-icon">📋</span>
+        <span class="sidebar-text">My Itineraries</span>
+      </a>
+
+      <div class="sidebar-section-label" style="margin-top:0.75rem;">Discover</div>
+      <a href="#how-it-works" class="sidebar-link">
+        <span class="sidebar-icon">🧠</span>
+        <span class="sidebar-text">How It Works</span>
+      </a>
+      <a href="#" class="sidebar-link">
+        <span class="sidebar-icon">🌟</span>
+        <span class="sidebar-text">Destinations</span>
+      </a>
+      <a href="#" class="sidebar-link">
+        <span class="sidebar-icon">💎</span>
+        <span class="sidebar-text">Hidden Gems</span>
+      </a>
+
+      <div class="sidebar-section-label" style="margin-top:0.75rem;">Account</div>
+      <a href="#" class="sidebar-link">
+        <span class="sidebar-icon">⚙️</span>
+        <span class="sidebar-text">Settings</span>
+      </a>
+      <a href="#" class="sidebar-link">
+        <span class="sidebar-icon">❓</span>
+        <span class="sidebar-text">Help</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="sidebar-toggle-btn" onclick="toggleSidebar()">
+        <span class="sidebar-toggle-icon">◀</span>
+        <span class="sidebar-toggle-text">Collapse</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ─────────────── MAIN CONTENT ─────────── -->
+  <div class="main-content" id="mainContent">
+
+    <!-- ── NAVBAR ─────────────────────────── -->
+    <nav class="navbar" id="navbar">
+      <div class="navbar-left">
+        <button class="navbar-menu-btn" onclick="toggleMobileSidebar()" title="Menu">☰</button>
+        <span class="navbar-title">✈️ Voyager AI</span>
+      </div>
+
+      <div class="navbar-links">
+        <a href="dashboard.html" class="navbar-link">Dashboard</a>
+        <a href="#home" class="navbar-link active">Home</a>
+        <a href="#how-it-works" class="navbar-link">Features</a>
+        <a href="#planner" class="navbar-link">Planner</a>
+        <a href="results.html" class="navbar-link" id="viewResultsNavLink" style="display:none;">Results</a>
+      </div>
+
+      <div class="navbar-right">
+        <div class="navbar-divider"></div>
+        <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle light/dark mode">
+          <div class="theme-toggle-knob" id="themeKnob">🌙</div>
+        </button>
+        <button class="navbar-icon-btn" title="Notifications">🔔<span class="notif-dot"></span></button>
+        <div class="navbar-avatar">V</div>
+      </div>
+    </nav>
+
+    <!-- ── HERO ───────────────────────────── -->
+    <header class="hero" id="home">
+      <div class="hero-orb hero-orb-1"></div>
+      <div class="hero-orb hero-orb-2"></div>
+      <div class="hero-orb hero-orb-3"></div>
+      <div class="hero-content">
+        <div class="hero-badge animate-fade-in">
+          <span>🧠</span> Bayesian Network Powered AI
+        </div>
+        <h1 class="animate-fade-in-up stagger-1">
+          Smart Travel Itinerary<br/>
+          <span class="gradient-text-animated" style="background:var(--grad-primary);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Planner</span>
+        </h1>
+        <p class="animate-fade-in-up stagger-2">
+          Experience AI-powered travel planning using probabilistic reasoning.
+          Get personalized itineraries, hidden gems, and budget optimization — all
+          tailored to your unique preferences.
+        </p>
+        <div class="animate-fade-in-up stagger-3" style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+          <a href="#planner" class="btn btn-primary btn-lg btn-ripple">✨ Plan My Itinerary</a>
+          <a href="#how-it-works" class="btn btn-outline btn-lg" style="color:rgba(255,255,255,0.9);border-color:rgba(255,255,255,0.3);">How it works</a>
+        </div>
+        <div class="hero-stats animate-fade-in-up stagger-4">
+          <div class="hero-stat"><div class="hero-stat-value">8+</div><div class="hero-stat-label">Destinations</div></div>
+          <div class="hero-stat"><div class="hero-stat-value">10</div><div class="hero-stat-label">AI Modules</div></div>
+          <div class="hero-stat"><div class="hero-stat-value">∞</div><div class="hero-stat-label">Unique Plans</div></div>
+          <div class="hero-stat"><div class="hero-stat-value">95%</div><div class="hero-stat-label">Accuracy</div></div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ── HOW IT WORKS ─────────────────── -->
+    <section class="section section-alt" id="how-it-works">
+      <div class="container">
+        <div class="reveal" style="text-align:center;margin-bottom:3rem;">
+          <div class="section-tag">🔬 The Science</div>
+          <h2 class="headline-lg">How Bayesian AI Plans Your Trip</h2>
+          <p class="body-md" style="max-width:560px;margin:1rem auto 0;">
+            Our engine calculates conditional probabilities across mood, budget, weather,
+            and group dynamics to deliver the mathematically optimal itinerary.
+          </p>
+        </div>
+        <div class="feature-grid">
+          <div class="card reveal card-hover-lift stagger-1">
+            <div class="feature-icon" style="background:rgba(124,111,247,0.12);">🎯</div>
+            <h3 class="headline-sm">P(Destination | Mood, Budget)</h3>
+            <p class="body-md" style="margin-top:0.5rem;">We compute conditional probability P(dest | mood, budget, weather) using Bayesian CPTs to score every destination and pick the highest-probability match.</p>
+          </div>
+          <div class="card reveal card-hover-lift stagger-2">
+            <div class="feature-icon" style="background:rgba(0,201,177,0.12);">🗺️</div>
+            <h3 class="headline-sm">Activity Inference</h3>
+            <p class="body-md" style="margin-top:0.5rem;">Activities are ranked by P(activity | destination, interest, weather), ensuring every hour of your day is both optimal and enjoyable.</p>
+          </div>
+          <div class="card reveal card-hover-lift stagger-3">
+            <div class="feature-icon" style="background:rgba(224,64,251,0.12);">💰</div>
+            <h3 class="headline-sm">Budget Optimization</h3>
+            <p class="body-md" style="margin-top:0.5rem;">A probabilistic cost model distributes your budget across transport, accommodation, food, activities, and shopping for maximum satisfaction.</p>
+          </div>
+          <div class="card reveal card-hover-lift stagger-4">
+            <div class="feature-icon" style="background:rgba(255,193,7,0.12);">🔄</div>
+            <h3 class="headline-sm">Plan A &amp; Plan B</h3>
+            <p class="body-md" style="margin-top:0.5rem;">The engine automatically generates an alternative itinerary using the second-ranked Bayesian destination as a smart fallback.</p>
+          </div>
+          <div class="card reveal card-hover-lift stagger-5">
+            <div class="feature-icon" style="background:rgba(124,111,247,0.12);">💎</div>
+            <h3 class="headline-sm">Hidden Gems</h3>
+            <p class="body-md" style="margin-top:0.5rem;">Scored by (1 - popularity) × uniqueness value, we surface off-beaten-path locations that perfectly fit your travel DNA.</p>
+          </div>
+          <div class="card reveal card-hover-lift stagger-6">
+            <div class="feature-icon" style="background:rgba(0,201,177,0.12);">🧳</div>
+            <h3 class="headline-sm">Smart Packing</h3>
+            <p class="body-md" style="margin-top:0.5rem;">Packing lists are generated contextually from destination type, weather conditions, and the specific activities in your itinerary.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── PLANNER FORM ─────────────────── -->
+    <section class="section" id="planner">
+      <div class="container-narrow">
+        <div class="reveal" style="text-align:center;margin-bottom:3rem;">
+          <div class="section-tag">✈️ Start Planning</div>
+          <h2 class="headline-lg">Tell Us About Your Dream Trip</h2>
+          <p class="body-md" style="max-width:480px;margin:1rem auto 0;">Answer a few questions and our Bayesian engine will craft your perfect itinerary in seconds.</p>
+        </div>
+
+        <!-- Stepper -->
+        <div class="stepper" id="stepper">
+          <div class="step active" id="step-indicator-1">
+            <div class="step-dot">1</div>
+            <div class="step-label">Mood &amp;<br/>Destination</div>
+          </div>
+          <div class="step-connector" id="connector-1"></div>
+          <div class="step" id="step-indicator-2">
+            <div class="step-dot">2</div>
+            <div class="step-label">Budget &amp;<br/>Dates</div>
+          </div>
+          <div class="step-connector" id="connector-2"></div>
+          <div class="step" id="step-indicator-3">
+            <div class="step-dot">3</div>
+            <div class="step-label">Interests &amp;<br/>Travel Style</div>
+          </div>
+          <div class="step-connector" id="connector-3"></div>
+          <div class="step" id="step-indicator-4">
+            <div class="step-dot">4</div>
+            <div class="step-label">Weather &amp;<br/>Confirm</div>
+          </div>
+        </div>
+
+        <!-- Form Card -->
+        <div class="form-card reveal">
+          <form id="plannerForm" novalidate>
+
+            <!-- STEP 1 -->
+            <div class="form-step active step-form-area" id="step-1">
+              <div>
+                <div class="section-label"><span class="label-sm">Step 1 of 4</span></div>
+                <h3 class="headline-sm" style="margin-bottom:0.375rem;">What's your travel mood?</h3>
+                <p class="body-md" style="margin-bottom:2rem;">This is the core signal for our Bayesian destination inference engine.</p>
+                <div class="form-group" style="margin-bottom:2rem;">
+                  <label class="form-label">Select Your Mood</label>
+                  <div class="chip-group" id="moodChips" style="margin-top:0.5rem;">
+                    <div class="mood-chip" data-mood="relaxed"><span class="emoji">😌</span><span class="label">Relaxed</span></div>
+                    <div class="mood-chip" data-mood="adventure"><span class="emoji">🏔️</span><span class="label">Adventure</span></div>
+                    <div class="mood-chip" data-mood="romantic"><span class="emoji">💕</span><span class="label">Romantic</span></div>
+                    <div class="mood-chip" data-mood="spiritual"><span class="emoji">🙏</span><span class="label">Spiritual</span></div>
+                    <div class="mood-chip" data-mood="cultural"><span class="emoji">🎭</span><span class="label">Cultural</span></div>
+                    <div class="mood-chip" data-mood="fun"><span class="emoji">🎉</span><span class="label">Fun</span></div>
+                    <div class="mood-chip" data-mood="reflective"><span class="emoji">🌙</span><span class="label">Reflective</span></div>
+                  </div>
+                  <input type="hidden" id="mood" name="mood" required />
+                </div>
+                <div class="grid-2" style="gap:1rem;">
+                  <div class="form-group">
+                    <label class="form-label" for="group_type">Travel Group</label>
+                    <select class="form-select" id="group_type" name="group_type" required>
+                      <option value="">Select group type</option>
+                      <option value="solo">🧍 Solo</option>
+                      <option value="couple">👫 Couple</option>
+                      <option value="family">👨‍👩‍👧‍👦 Family</option>
+                      <option value="friends">👥 Friends</option>
+                      <option value="corporate">💼 Corporate</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="duration_days">Trip Duration</label>
+                    <select class="form-select" id="duration_days" name="duration_days" required>
+                      <option value="">Select duration</option>
+                      <option value="2">Weekend (2 days)</option>
+                      <option value="3">Short Trip (3 days)</option>
+                      <option value="5">Week Trip (5 days)</option>
+                      <option value="7">Full Week (7 days)</option>
+                      <option value="10">Extended (10 days)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="form-nav">
+                <div></div>
+                <button type="button" class="btn btn-primary btn-ripple" onclick="nextStep(1)">Next: Budget &amp; Dates →</button>
+              </div>
+            </div>
+
+            <!-- STEP 2 -->
+            <div class="form-step step-form-area" id="step-2">
+              <div>
+                <div class="section-label"><span class="label-sm">Step 2 of 4</span></div>
+                <h3 class="headline-sm" style="margin-bottom:0.375rem;">Budget &amp; Travel Dates</h3>
+                <p class="body-md" style="margin-bottom:2rem;">Your budget shapes the probability distribution across accommodation, transport, and activities.</p>
+                <div class="form-group" style="margin-bottom:2rem;">
+                  <label class="form-label">Total Trip Budget (₹)</label>
+                  <div class="budget-display" id="budgetDisplay">₹30,000</div>
+                  <input type="range" id="budget" name="budget" min="5000" max="200000" step="1000" value="30000" oninput="updateBudgetDisplay(this.value)" />
+                  <div style="display:flex;justify-content:space-between;margin-top:0.5rem;">
+                    <span class="label-sm">₹5,000</span>
+                    <span class="label-sm">₹2,00,000</span>
+                  </div>
+                </div>
+                <div class="date-pair" style="margin-bottom:2rem;">
+                  <div class="form-group">
+                    <label class="form-label" for="start_date">Start Date</label>
+                    <input type="date" class="form-input" id="start_date" name="start_date" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="end_date">End Date</label>
+                    <input type="date" class="form-input" id="end_date" name="end_date" />
+                  </div>
+                </div>
+                <div class="grid-2" style="gap:1rem;">
+                  <div class="form-group">
+                    <label class="form-label" for="transport">Transport Mode</label>
+                    <select class="form-select" id="transport" name="transport" required>
+                      <option value="">Select transport</option>
+                      <option value="flight">✈️ Flight</option>
+                      <option value="train">🚂 Train</option>
+                      <option value="bus">🚌 Bus</option>
+                      <option value="car">🚗 Private Car</option>
+                      <option value="bike">🏍️ Bike</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="accommodation">Accommodation</label>
+                    <select class="form-select" id="accommodation" name="accommodation" required>
+                      <option value="">Select stay type</option>
+                      <option value="hostel">🛏️ Hostel</option>
+                      <option value="guesthouse">🏡 Guesthouse</option>
+                      <option value="homestay">🏠 Homestay</option>
+                      <option value="hotel_3star">⭐⭐⭐ 3-Star Hotel</option>
+                      <option value="hotel_5star">⭐⭐⭐⭐⭐ 5-Star Hotel</option>
+                      <option value="resort">🌴 Resort</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="form-nav">
+                <button type="button" class="btn btn-ghost" onclick="prevStep(2)">← Back</button>
+                <button type="button" class="btn btn-primary btn-ripple" onclick="nextStep(2)">Next: Interests →</button>
+              </div>
+            </div>
+
+            <!-- STEP 3 -->
+            <div class="form-step step-form-area" id="step-3">
+              <div>
+                <div class="section-label"><span class="label-sm">Step 3 of 4</span></div>
+                <h3 class="headline-sm" style="margin-bottom:0.375rem;">What interests you most?</h3>
+                <p class="body-md" style="margin-bottom:2rem;">Select all that apply. These feed directly into P(activity | destination, interest) in our Bayesian engine.</p>
+                <div class="interests-grid" id="interestChips"><!-- Generated by JS --></div>
+              </div>
+              <div class="form-nav">
+                <button type="button" class="btn btn-ghost" onclick="prevStep(3)">← Back</button>
+                <button type="button" class="btn btn-primary btn-ripple" onclick="nextStep(3)">Next: Weather →</button>
+              </div>
+            </div>
+
+            <!-- STEP 4 -->
+            <div class="form-step step-form-area" id="step-4">
+              <div>
+                <div class="section-label"><span class="label-sm">Step 4 of 4</span></div>
+                <h3 class="headline-sm" style="margin-bottom:0.375rem;">Expected Weather &amp; Final Review</h3>
+                <p class="body-md" style="margin-bottom:2rem;">Weather adjusts P(dest|weather) probabilities and filters suitable activities.</p>
+                <div class="form-group" style="margin-bottom:2rem;">
+                  <label class="form-label">Weather Conditions</label>
+                  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:0.75rem;margin-top:0.5rem;" id="weatherOptions">
+                    <label class="weather-option" onclick="selectWeather(this,'sunny')"><span class="w-emoji">☀️</span><div><div style="font-weight:600;font-size:0.9rem;">Sunny</div><div class="body-md">Hot &amp; bright</div></div></label>
+                    <label class="weather-option" onclick="selectWeather(this,'cold')"><span class="w-emoji">❄️</span><div><div style="font-weight:600;font-size:0.9rem;">Cold</div><div class="body-md">Snow &amp; chill</div></div></label>
+                    <label class="weather-option" onclick="selectWeather(this,'rainy')"><span class="w-emoji">🌧️</span><div><div style="font-weight:600;font-size:0.9rem;">Rainy</div><div class="body-md">Monsoon season</div></div></label>
+                    <label class="weather-option" onclick="selectWeather(this,'warm')"><span class="w-emoji">🌤️</span><div><div style="font-weight:600;font-size:0.9rem;">Warm</div><div class="body-md">Pleasant &amp; mild</div></div></label>
+                    <label class="weather-option" onclick="selectWeather(this,'cool')"><span class="w-emoji">🌬️</span><div><div style="font-weight:600;font-size:0.9rem;">Cool</div><div class="body-md">Breezy &amp; fresh</div></div></label>
+                    <label class="weather-option" onclick="selectWeather(this,'humid')"><span class="w-emoji">💧</span><div><div style="font-weight:600;font-size:0.9rem;">Humid</div><div class="body-md">Tropical warmth</div></div></label>
+                  </div>
+                  <input type="hidden" id="weather" name="weather" required />
+                </div>
+                <div class="card card-flat" id="summaryCard" style="padding:1.5rem;">
+                  <div class="label-sm" style="margin-bottom:1rem;">Trip Summary Preview</div>
+                  <div id="summaryContent" style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;"></div>
+                </div>
+              </div>
+              <div class="form-nav">
+                <button type="button" class="btn btn-ghost" onclick="prevStep(4)">← Back</button>
+                <button type="submit" class="btn btn-primary btn-lg btn-ripple" id="submitBtn">🧠 Generate My Itinerary</button>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── FOOTER ──────────────────────── -->
+    <footer>
+      <div class="container" style="padding:2rem;text-align:center;">
+        <div style="font-family:var(--font-display);font-size:1.1rem;font-weight:800;background:var(--grad-primary);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:inline-block;margin-bottom:0.5rem;">✈️ Voyager AI</div>
+        <p style="font-size:0.8125rem;margin-top:0.5rem;color:var(--text-secondary);">Powered by Bayesian Network probabilistic reasoning. Built with Python Flask + Vanilla JS.</p>
+        <p style="font-size:0.75rem;margin-top:0.375rem;color:var(--text-muted);">© 2025 Smart Travel Itinerary Planner</p>
+      </div>
+    </footer>
+
+  </div><!-- /main-content -->
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div style="font-size:3rem;animation:float 2s ease-in-out infinite;">✈️</div>
+    <div class="loading-dots">
+      <div class="loading-dot"></div>
+      <div class="loading-dot"></div>
+      <div class="loading-dot"></div>
+    </div>
+    <div class="loading-text" style="color:var(--text-primary);">Calculating Your Perfect Trip...</div>
+    <div class="loading-subtext" id="loadingSubtext" style="color:var(--text-secondary);">Running Bayesian inference across 8 destinations and 12 activities...</div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast">
+    <span id="toastIcon">ℹ️</span>
+    <span id="toastMsg">Message</span>
+  </div>
+
+  <script>
+    // ── Theme ─────────────────────────────────
+    const html = document.documentElement;
+    const themeKnob = document.getElementById('themeKnob');
+
+    function applyTheme(theme) {
+      html.setAttribute('data-theme', theme);
+      if (themeKnob) themeKnob.textContent = theme === 'dark' ? '🌙' : '☀️';
+      localStorage.setItem('voyager-theme', theme);
+    }
+    function toggleTheme() {
+      const curr = html.getAttribute('data-theme');
+      applyTheme(curr === 'dark' ? 'light' : 'dark');
+    }
+    applyTheme(localStorage.getItem('voyager-theme') || 'dark');
+
+    // ── Sidebar ───────────────────────────────
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+    const navbar = document.getElementById('navbar');
+
+    function toggleSidebar() {
+      sidebar.classList.toggle('collapsed');
+      if (sidebar.classList.contains('collapsed')) {
+        mainContent.style.marginLeft = 'var(--sidebar-collapsed)';
+        navbar.style.left = 'var(--sidebar-collapsed)';
+      } else {
+        mainContent.style.marginLeft = 'var(--sidebar-width)';
+        navbar.style.left = 'var(--sidebar-width)';
+      }
+    }
+
+    function toggleMobileSidebar() {
+      const overlay = document.getElementById('sidebarOverlay');
+      sidebar.classList.toggle('mobile-open');
+      overlay.classList.toggle('active');
+    }
+
+    function closeSidebar() {
+      sidebar.classList.remove('mobile-open');
+      document.getElementById('sidebarOverlay').classList.remove('active');
+    }
+
+    if (window.innerWidth < 768) {
+      mainContent.style.marginLeft = '0';
+      navbar.style.left = '0';
+    }
+
+    // Show results link if results exist
+    if (localStorage.getItem('voyager-itinerary')) {
+      const link = document.getElementById('viewResultsNavLink');
+      if (link) link.style.display = 'inline';
+    }
+  </script>
+
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

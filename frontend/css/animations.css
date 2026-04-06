@@ -1,0 +1,314 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   SMART TRAVEL PLANNER — Animations & Micro-interactions
+═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─── Keyframe Definitions ─────────────────────────────────────────────── */
+
+@keyframes pulse-ring {
+  0%   { box-shadow: 0 0 0 0 rgba(74, 64, 224, 0.35); }
+  50%  { box-shadow: 0 0 0 10px rgba(74, 64, 224, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(74, 64, 224, 0); }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes skeleton-wave {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-8px); }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes shimmer {
+  0%   { opacity: 0.4; }
+  50%  { opacity: 1; }
+  100% { opacity: 0.4; }
+}
+
+@keyframes progressFill {
+  from { width: 0%; }
+}
+
+@keyframes countUp {
+  from { opacity: 0; transform: scale(0.8); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(20px, -15px) scale(1.05); }
+  66%       { transform: translate(-10px, 10px) scale(0.98); }
+}
+
+@keyframes gradientShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes checkmark {
+  0%   { stroke-dashoffset: 30; }
+  100% { stroke-dashoffset: 0; }
+}
+
+/* ─── Animation Utility Classes ────────────────────────────────────────── */
+
+.animate-fade-in        { animation: fadeIn 0.5s ease forwards; }
+.animate-fade-in-up     { animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+.animate-fade-in-down   { animation: fadeInDown 0.5s ease forwards; }
+.animate-slide-right    { animation: slideInRight 0.5s ease forwards; }
+.animate-slide-left     { animation: slideInLeft 0.5s ease forwards; }
+.animate-scale-in       { animation: scaleIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+.animate-float          { animation: float 3s ease-in-out infinite; }
+.animate-spin           { animation: spin 1.2s linear infinite; }
+.animate-shimmer        { animation: shimmer 2s ease-in-out infinite; }
+
+/* Staggered delays for lists */
+.stagger-1  { animation-delay: 0.05s; }
+.stagger-2  { animation-delay: 0.10s; }
+.stagger-3  { animation-delay: 0.15s; }
+.stagger-4  { animation-delay: 0.20s; }
+.stagger-5  { animation-delay: 0.25s; }
+.stagger-6  { animation-delay: 0.30s; }
+.stagger-7  { animation-delay: 0.35s; }
+.stagger-8  { animation-delay: 0.40s; }
+
+/* Initially hidden for staggered animations */
+.stagger-child {
+  opacity: 0;
+}
+
+.stagger-child.animated {
+  animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* ─── Hero Orbs ─────────────────────────────────────────────────────────── */
+.hero-orb-1 { animation: orbFloat 8s ease-in-out infinite; }
+.hero-orb-2 { animation: orbFloat 10s ease-in-out infinite reverse; }
+
+/* ─── Animated Gradient Text ────────────────────────────────────────────── */
+.gradient-text-animated {
+  background: linear-gradient(-45deg, #7c6ff7, #b06cf7, #00c9b1, #e040fb, #7c6ff7);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientShift 6s ease infinite;
+}
+
+/* ─── Loading Overlay ───────────────────────────────────────────────────── */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg, rgba(10,12,20,0.97));
+  backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  gap: 1.5rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.loading-overlay.show {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.loading-spinner {
+  width: 60px;
+  height: 60px;
+  border: 3px solid var(--surface-container);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loading-dots {
+  display: flex;
+  gap: 8px;
+}
+
+.loading-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--primary);
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+.loading-dot:nth-child(2) { animation-delay: 0.2s; background: var(--tertiary); }
+.loading-dot:nth-child(3) { animation-delay: 0.4s; background: var(--secondary); }
+
+.loading-text {
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--on-surface);
+}
+
+.loading-subtext {
+  font-size: 0.875rem;
+  color: var(--on-surface-variant);
+  text-align: center;
+  max-width: 300px;
+}
+
+/* ─── Transition States ─────────────────────────────────────────────────── */
+.form-step {
+  animation: none;
+}
+
+.form-step.entering {
+  animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.form-step.leaving {
+  animation: slideInLeft 0.4s cubic-bezier(0.4, 0, 0.2, 1) reverse forwards;
+}
+
+/* ─── Hover Card Lift ───────────────────────────────────────────────────── */
+.card-hover-lift {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover-lift:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 60px rgba(74, 64, 224, 0.12);
+}
+
+/* ─── Button Ripple ─────────────────────────────────────────────────────── */
+.btn-ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-ripple::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+  opacity: 0;
+  transform: scale(0);
+  transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+.btn-ripple:active::after {
+  transform: scale(1);
+  opacity: 1;
+  transition: 0s;
+}
+
+/* ─── Probability Score Animated Ring ───────────────────────────────────── */
+.score-ring-svg {
+  transform: rotate(-90deg);
+}
+
+.score-ring-track {
+  stroke: rgba(255, 255, 255, 0.15);
+  fill: none;
+}
+
+.score-ring-fill {
+  stroke: white;
+  fill: none;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ─── Scroll Reveal ─────────────────────────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ─── Itinerary Day Stagger ─────────────────────────────────────────────── */
+.day-card {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.day-card.animated {
+  animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* ─── Packing Item Check Animation ──────────────────────────────────────── */
+@keyframes checkBounce {
+  0%   { transform: scale(0.8); }
+  50%  { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+.checklist-checkbox.checked-anim {
+  animation: checkBounce 0.25s ease-out;
+}
+
+/* ─── Tab Switch Indicator ─────────────────────────────────────────────── */
+.tab-indicator {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ─── Progress Success Fill ─────────────────────────────────────────────── */
+.progress-fill {
+  animation: progressFill 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* ─── Page Transition ───────────────────────────────────────────────────── */
+.page-enter {
+  animation: fadeIn 0.4s ease forwards;
+}

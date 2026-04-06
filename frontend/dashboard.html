@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Voyager AI — Smart Travel Planner Dashboard</title>
+  <meta name="description" content="Your AI-powered travel command center. Track trips, explore destinations, and plan your next adventure with Bayesian intelligence." />
+  <link rel="stylesheet" href="css/theme.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈️</text></svg>" />
+  <style>
+    body { margin: 0; }
+
+    /* ── Welcome Banner ─────────────────────── */
+    .welcome-banner {
+      border-radius: var(--radius-lg);
+      background: linear-gradient(135deg, #1a1040 0%, #2a1060 40%, #0a2040 100%);
+      border: 1px solid rgba(124,111,247,0.2);
+      padding: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    [data-theme="light"] .welcome-banner {
+      background: linear-gradient(135deg, #4a40e0 0%, #7c6ff7 50%, #00897b 100%);
+    }
+    .welcome-banner::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .welcome-text { position: relative; }
+    .welcome-title {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: white;
+      margin-bottom: 0.35rem;
+    }
+    .welcome-subtitle { font-size: 0.875rem; color: rgba(255,255,255,0.7); }
+    .welcome-action {
+      flex-shrink: 0; position: relative;
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--radius-full);
+      font-family: var(--font-display);
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all var(--transition-smooth);
+      display: inline-flex; align-items: center; gap: 0.5rem;
+    }
+    .welcome-action:hover { background: rgba(255,255,255,0.25); transform: translateY(-2px); }
+    .welcome-emoji { font-size: 3rem; position: relative; }
+
+    /* ── Trend chart bars (decorative) ─────── */
+    .mini-chart {
+      display: flex; align-items: flex-end; gap: 3px;
+      height: 40px;
+    }
+    .mini-bar {
+      width: 8px; border-radius: 2px;
+      background: rgba(124,111,247,0.3);
+      transition: background var(--transition-fast);
+    }
+    .mini-bar.active { background: var(--primary); }
+    .stat-card:hover .mini-bar.active { background: #00c9b1; }
+
+    /* ── Map section ─────────────────────── */
+    .world-map-card {
+      background: var(--surface-01);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      padding: 1.5rem;
+    }
+    .map-visual {
+      height: 200px;
+      background: linear-gradient(135deg, #0a1628 0%, #0f2040 50%, #0a1628 100%);
+      border-radius: var(--radius-md);
+      position: relative; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
+    [data-theme="light"] .map-visual {
+      background: linear-gradient(135deg, #dce8ff 0%, #c8d8f8 100%);
+    }
+    .map-grid-lines {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(124,111,247,0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124,111,247,0.08) 1px, transparent 1px);
+      background-size: 30px 30px;
+    }
+    .map-pin {
+      position: absolute;
+      font-size: 1.2rem;
+      animation: float-pin 3s ease-in-out infinite;
+      cursor: pointer;
+      transition: transform var(--transition-fast);
+    }
+    .map-pin:hover { transform: scale(1.3); }
+    @keyframes float-pin {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ── Sidebar Overlay (mobile) ───────────── -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <!-- ─────────────────────────────────────────
+       SIDEBAR
+  ────────────────────────────────────────── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">✈️</div>
+      <span class="sidebar-logo-text">Voyager AI</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Main</div>
+
+      <a href="dashboard.html" class="sidebar-link active" id="nav-dashboard">
+        <span class="sidebar-icon">🏠</span>
+        <span class="sidebar-text">Dashboard</span>
+      </a>
+
+      <a href="index.html#planner" class="sidebar-link" id="nav-planner">
+        <span class="sidebar-icon">🗺️</span>
+        <span class="sidebar-text">Plan a Trip</span>
+        <span class="sidebar-badge">AI</span>
+      </a>
+
+      <a href="results.html" class="sidebar-link" id="nav-results">
+        <span class="sidebar-icon">📋</span>
+        <span class="sidebar-text">My Itineraries</span>
+      </a>
+
+      <div class="sidebar-section-label" style="margin-top:0.75rem;">Discover</div>
+
+      <a href="index.html#how-it-works" class="sidebar-link">
+        <span class="sidebar-icon">🧠</span>
+        <span class="sidebar-text">How It Works</span>
+      </a>
+
+      <a href="index.html" class="sidebar-link">
+        <span class="sidebar-icon">🌟</span>
+        <span class="sidebar-text">Destinations</span>
+      </a>
+
+      <a href="#" class="sidebar-link">
+        <span class="sidebar-icon">💎</span>
+        <span class="sidebar-text">Hidden Gems</span>
+      </a>
+
+      <div class="sidebar-section-label" style="margin-top:0.75rem;">Account</div>
+
+      <a href="#" class="sidebar-link">
+        <span class="sidebar-icon">⚙️</span>
+        <span class="sidebar-text">Settings</span>
+      </a>
+
+      <a href="#" class="sidebar-link">
+        <span class="sidebar-icon">❓</span>
+        <span class="sidebar-text">Help</span>
+      </a>
+      <!-- Logout -->
+      <a href="#" class="sidebar-link" onclick="handleLogout()" style="color:var(--error);">
+        <span class="sidebar-icon">🚪</span>
+        <span class="sidebar-text">Logout</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="sidebar-toggle-btn" id="sidebarToggleBtn" onclick="toggleSidebar()">
+        <span class="sidebar-toggle-icon">◀</span>
+        <span class="sidebar-toggle-text">Collapse</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ─────────────────────────────────────────
+       MAIN CONTENT
+  ────────────────────────────────────────── -->
+  <div class="main-content" id="mainContent">
+
+    <!-- ── NAVBAR ──────────────────────────── -->
+    <nav class="navbar" id="navbar">
+      <div class="navbar-left">
+        <button class="navbar-menu-btn" id="mobileMenuBtn" onclick="toggleMobileSidebar()" title="Menu">
+          ☰
+        </button>
+        <span class="navbar-title">Dashboard</span>
+      </div>
+
+      <div class="navbar-links">
+        <a href="dashboard.html" class="navbar-link active">Dashboard</a>
+        <a href="index.html" class="navbar-link">Planner</a>
+        <a href="index.html#how-it-works" class="navbar-link">Features</a>
+        <a href="results.html" class="navbar-link">Results</a>
+      </div>
+
+      <div class="navbar-right">
+        <div class="navbar-divider"></div>
+
+        <!-- Theme Toggle -->
+        <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle light/dark mode" aria-label="Toggle theme">
+          <div class="theme-toggle-knob" id="themeKnob">🌙</div>
+        </button>
+
+        <button class="navbar-icon-btn" title="Notifications">
+          🔔
+          <span class="notif-dot"></span>
+        </button>
+
+        <div class="navbar-avatar" id="navbarAvatar" title="Profile">V</div>
+      </div>
+    </nav>
+
+    <!-- ── DASHBOARD CONTENT ──────────────── -->
+    <main>
+      <!-- Header -->
+      <div class="dashboard-header">
+        <div class="dashboard-greeting" id="dashGreeting">Good evening, Traveler 👋</div>
+        <div class="dashboard-sub" id="dashSub">Your AI travel planner is ready. Here's your travel overview.</div>
+      </div>
+
+      <div class="dashboard-body">
+
+        <!-- Welcome Banner -->
+        <div class="welcome-banner">
+          <div class="welcome-text">
+            <div class="welcome-title">Ready for your next adventure? 🚀</div>
+            <div class="welcome-subtitle">Our Bayesian AI has analyzed 8+ destinations matching your profile. Start planning now!</div>
+          </div>
+          <div class="welcome-emoji">🌍</div>
+          <a href="index.html#planner" class="welcome-action">
+            ✨ Plan a Trip
+          </a>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-icon violet">🗺️</div>
+            <div>
+              <div class="stat-value" id="statDest">12</div>
+              <div class="stat-label">Destinations</div>
+            </div>
+            <div style="margin-left:auto;">
+              <div class="mini-chart">
+                <div class="mini-bar" style="height:20%;"></div>
+                <div class="mini-bar" style="height:40%;"></div>
+                <div class="mini-bar" style="height:30%;"></div>
+                <div class="mini-bar" style="height:60%;"></div>
+                <div class="mini-bar active" style="height:80%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon cyan">🧠</div>
+            <div>
+              <div class="stat-value">10</div>
+              <div class="stat-label">AI Modules</div>
+            </div>
+            <div class="stat-change" style="margin-left:auto;">+2 new</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon pink">📋</div>
+            <div>
+              <div class="stat-value">∞</div>
+              <div class="stat-label">Unique Plans</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon amber">🎯</div>
+            <div>
+              <div class="stat-value">95%</div>
+              <div class="stat-label">AI Accuracy</div>
+            </div>
+            <div class="stat-change" style="margin-left:auto;">↑ 3%</div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div>
+          <h2 style="font-family:var(--font-display);font-size:1rem;font-weight:700;color:var(--text-primary);margin-bottom:0.875rem;">Quick Actions</h2>
+          <div class="quick-actions">
+            <a href="index.html#planner" class="quick-action-card" style="text-decoration:none;">
+              <div class="qa-icon" style="background:rgba(124,111,247,0.15);">🗺️</div>
+              <div class="qa-title">Plan New Trip</div>
+              <div class="qa-desc">Use our Bayesian AI to craft your perfect personalized itinerary in seconds.</div>
+              <div class="qa-arrow">Start Planning →</div>
+            </a>
+
+            <a href="results.html" class="quick-action-card" style="text-decoration:none;">
+              <div class="qa-icon" style="background:rgba(0,201,177,0.15);">📋</div>
+              <div class="qa-title">View Itinerary</div>
+              <div class="qa-desc">Access your last generated itinerary with day-by-day schedule and packing list.</div>
+              <div class="qa-arrow">Open Results →</div>
+            </a>
+
+            <a href="index.html#how-it-works" class="quick-action-card" style="text-decoration:none;">
+              <div class="qa-icon" style="background:rgba(224,64,251,0.15);">🧠</div>
+              <div class="qa-title">Explore AI Science</div>
+              <div class="qa-desc">Understand how Bayesian Network probabilistic reasoning works behind the scenes.</div>
+              <div class="qa-arrow">Learn More →</div>
+            </a>
+          </div>
+        </div>
+
+        <!-- Two-col row: Destinations + Activity -->
+        <div class="dashboard-row">
+
+          <!-- Top Destinations -->
+          <div class="dashboard-card">
+            <div class="dashboard-card-header">
+              <span class="dashboard-card-title">🏆 Top Destinations by AI Match</span>
+              <a class="dashboard-card-action" href="index.html#planner">Plan trip →</a>
+            </div>
+            <div class="dashboard-card-body">
+              <div class="dest-list-item">
+                <span class="dest-emoji">🏔️</span>
+                <div>
+                  <div class="dest-name">Manali</div>
+                  <div class="dest-country">Himachal Pradesh, India</div>
+                </div>
+                <div class="dest-prob">
+                  <span class="dest-prob-value">94%</span>
+                  <div class="dest-prob-bar"><div class="dest-prob-fill" style="width:94%"></div></div>
+                </div>
+              </div>
+              <div class="dest-list-item">
+                <span class="dest-emoji">🏖️</span>
+                <div>
+                  <div class="dest-name">Goa</div>
+                  <div class="dest-country">Goa, India</div>
+                </div>
+                <div class="dest-prob">
+                  <span class="dest-prob-value">87%</span>
+                  <div class="dest-prob-bar"><div class="dest-prob-fill" style="width:87%"></div></div>
+                </div>
+              </div>
+              <div class="dest-list-item">
+                <span class="dest-emoji">🏯</span>
+                <div>
+                  <div class="dest-name">Rajasthan</div>
+                  <div class="dest-country">Rajasthan, India</div>
+                </div>
+                <div class="dest-prob">
+                  <span class="dest-prob-value">81%</span>
+                  <div class="dest-prob-bar"><div class="dest-prob-fill" style="width:81%"></div></div>
+                </div>
+              </div>
+              <div class="dest-list-item">
+                <span class="dest-emoji">🕌</span>
+                <div>
+                  <div class="dest-name">Kerala</div>
+                  <div class="dest-country">Kerala, India</div>
+                </div>
+                <div class="dest-prob">
+                  <span class="dest-prob-value">76%</span>
+                  <div class="dest-prob-bar"><div class="dest-prob-fill" style="width:76%"></div></div>
+                </div>
+              </div>
+              <div class="dest-list-item">
+                <span class="dest-emoji">🏝️</span>
+                <div>
+                  <div class="dest-name">Andaman Islands</div>
+                  <div class="dest-country">Andaman & Nicobar, India</div>
+                </div>
+                <div class="dest-prob">
+                  <span class="dest-prob-value">72%</span>
+                  <div class="dest-prob-bar"><div class="dest-prob-fill" style="width:72%"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Activity Feed -->
+          <div class="dashboard-card">
+            <div class="dashboard-card-header">
+              <span class="dashboard-card-title">⚡ AI Activity Feed</span>
+            </div>
+            <div class="dashboard-card-body">
+              <div class="activity-item">
+                <div class="activity-dot violet">🧠</div>
+                <div>
+                  <div class="activity-text"><strong>Bayesian inference</strong> completed for Adventure mood profile</div>
+                  <div class="activity-time">Just now</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot cyan">📊</div>
+                <div>
+                  <div class="activity-text"><strong>Budget model</strong> optimized across 6 spending categories</div>
+                  <div class="activity-time">2m ago</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot pink">💎</div>
+                <div>
+                  <div class="activity-text"><strong>Hidden gem</strong> Coorg discovered with 0.91 uniqueness score</div>
+                  <div class="activity-time">5m ago</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot violet">🗓️</div>
+                <div>
+                  <div class="activity-text"><strong>Itinerary Plan A</strong> generated for 5-day Goa trip</div>
+                  <div class="activity-time">12m ago</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot cyan">🧳</div>
+                <div>
+                  <div class="activity-text"><strong>Packing list</strong> contextually built from 12 beach activities</div>
+                  <div class="activity-time">15m ago</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- World Map Visual -->
+        <div class="world-map-card">
+          <div class="dashboard-card-header" style="padding:0 0 1rem 0; border:none;">
+            <span class="dashboard-card-title">🌐 Destination Map</span>
+            <a class="dashboard-card-action" href="index.html#planner">Explore All →</a>
+          </div>
+          <div class="map-visual">
+            <div class="map-grid-lines"></div>
+            <div class="map-pin" style="top:35%;left:68%;animation-delay:0s;" title="Manali">🏔️</div>
+            <div class="map-pin" style="top:55%;left:65%;animation-delay:0.5s;" title="Goa">🏖️</div>
+            <div class="map-pin" style="top:40%;left:60%;animation-delay:1s;" title="Rajasthan">🏯</div>
+            <div class="map-pin" style="top:62%;left:62%;animation-delay:1.5s;" title="Kerala">🌴</div>
+            <div class="map-pin" style="top:60%;left:80%;animation-delay:2s;" title="Andaman">🏝️</div>
+            <div class="map-pin" style="top:25%;left:55%;animation-delay:0.3s;" title="Ladakh">⛰️</div>
+            <div style="position:relative;z-index:2;text-align:center;color:rgba(255,255,255,0.5);font-size:0.8rem;">
+              Interactive map — India destinations
+            </div>
+          </div>
+        </div>
+
+        <!-- Destinations Dataset Section -->
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.875rem;">
+            <h2 style="font-family:var(--font-display);font-size:1rem;font-weight:700;color:var(--text-primary);">🌏 All Destinations</h2>
+            <div style="display:flex;gap:0.5rem;" id="destFilterBtns">
+              <button class="dest-filter-btn active" onclick="filterDestinations('all', this)">All</button>
+              <button class="dest-filter-btn" onclick="filterDestinations('beach', this)">🏖️ Beach</button>
+              <button class="dest-filter-btn" onclick="filterDestinations('mountain', this)">🏔️ Mountain</button>
+              <button class="dest-filter-btn" onclick="filterDestinations('nature', this)">🌿 Nature</button>
+              <button class="dest-filter-btn" onclick="filterDestinations('heritage', this)">🏛️ Heritage</button>
+            </div>
+          </div>
+          <div id="destinationsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;"></div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <style>
+    .dest-filter-btn {
+      padding: 0.35rem 0.875rem;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border);
+      background: var(--surface-02);
+      color: var(--text-secondary);
+      font-size: 0.8rem; font-weight: 600;
+      cursor: pointer; transition: all var(--transition-fast);
+      font-family: var(--font-display);
+    }
+    .dest-filter-btn:hover { background: var(--surface-03); color: var(--text-primary); }
+    .dest-filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+    .dest-card {
+      background: var(--surface-01);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: all var(--transition-smooth);
+      cursor: pointer;
+    }
+    .dest-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: var(--border-active); }
+    .dest-card-img {
+      height: 140px;
+      background: var(--grad-hero);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 3.5rem;
+      position: relative; overflow: hidden;
+    }
+    .dest-card-img img {
+      width: 100%; height: 100%; object-fit: cover;
+      position: absolute; inset: 0;
+      transition: transform var(--transition-slow);
+    }
+    .dest-card:hover .dest-card-img img { transform: scale(1.08); }
+    .dest-card-body { padding: 1rem 1.125rem 1.125rem; }
+    .dest-card-name {
+      font-family: var(--font-display);
+      font-size: 1rem; font-weight: 700;
+      color: var(--text-primary); margin-bottom: 0.2rem;
+    }
+    .dest-card-state { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.6rem; }
+    .dest-card-desc { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.45; margin-bottom: 0.75rem; }
+    .dest-card-tags {
+      display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 0.75rem;
+    }
+    .dest-tag {
+      padding: 0.15rem 0.5rem;
+      border-radius: var(--radius-full);
+      background: var(--surface-03);
+      color: var(--text-secondary);
+      font-size: 0.68rem; font-weight: 600;
+    }
+    .dest-card-footer {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .dest-rating {
+      font-size: 0.8rem; font-weight: 700; color: #f59e0b;
+    }
+    .dest-cost {
+      font-size: 0.78rem; color: var(--text-secondary);
+    }
+    .dest-cost strong { color: var(--secondary); font-weight: 700; }
+    .dest-type-pill {
+      position: absolute; top: 0.6rem; left: 0.6rem;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(8px);
+      border-radius: var(--radius-full);
+      padding: 0.2rem 0.6rem;
+      font-size: 0.68rem; font-weight: 700;
+      color: white; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    @media(max-width:768px) { #destFilterBtns { display: none; } }
+  </style>
+
+  <script>
+    // ── Auth guard ───────────────────────────
+    const currentUser = JSON.parse(localStorage.getItem('voyager-current-user') || 'null');
+    if (!currentUser) { window.location.href = 'login.html'; }
+
+    function handleLogout() {
+      localStorage.removeItem('voyager-current-user');
+      window.location.href = 'login.html?logout=1';
+    }
+
+    // ── Personalise UI ───────────────────────
+    if (currentUser) {
+      // Greeting
+      const hour = new Date().getHours();
+      const greet = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+      document.getElementById('dashGreeting').textContent = `${greet}, ${currentUser.name.split(' ')[0]} 👋`;
+      document.getElementById('dashSub').textContent = 'Welcome back! Your AI travel planner is ready.';
+      // Avatar
+      const av = document.getElementById('navbarAvatar');
+      av.textContent = currentUser.avatar || currentUser.name[0].toUpperCase();
+    }
+
+    // ── Theme Toggle ─────────────────────────
+    const html = document.documentElement;
+    const themeKnob = document.getElementById('themeKnob');
+    function applyTheme(theme) {
+      html.setAttribute('data-theme', theme);
+      if (themeKnob) themeKnob.textContent = theme === 'dark' ? '🌙' : '☀️';
+      localStorage.setItem('voyager-theme', theme);
+    }
+    function toggleTheme() {
+      applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    }
+    applyTheme(localStorage.getItem('voyager-theme') || 'dark');
+
+    // ── Sidebar ──────────────────────────────
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+    const navbar = document.getElementById('navbar');
+    function toggleSidebar() {
+      sidebar.classList.toggle('collapsed');
+      const w = sidebar.classList.contains('collapsed') ? 'var(--sidebar-collapsed)' : 'var(--sidebar-width)';
+      mainContent.style.marginLeft = w;
+      navbar.style.left = w;
+    }
+    function toggleMobileSidebar() {
+      sidebar.classList.toggle('mobile-open');
+      document.getElementById('sidebarOverlay').classList.toggle('active');
+    }
+    function closeSidebar() {
+      sidebar.classList.remove('mobile-open');
+      document.getElementById('sidebarOverlay').classList.remove('active');
+    }
+    if (window.innerWidth < 768) {
+      mainContent.style.marginLeft = '0';
+      navbar.style.left = '0';
+    }
+
+    // ── Load Destinations Dataset ────────────
+    let allDestinations = [];
+
+    fetch('js/destinations_dataset.json')
+      .then(r => r.json())
+      .then(data => {
+        allDestinations = data.destinations;
+        document.getElementById('statDest').textContent = allDestinations.length + '+';
+        renderDestinations(allDestinations);
+      })
+      .catch(() => {
+        // fallback: show placeholder
+        document.getElementById('destinationsGrid').innerHTML =
+          '<p style="color:var(--text-muted);font-size:0.875rem;">Start the backend server to load destinations.</p>';
+      });
+
+    function renderDestinations(dests) {
+      const grid = document.getElementById('destinationsGrid');
+      if (!dests.length) {
+        grid.innerHTML = '<p style="color:var(--text-muted);">No destinations match that filter.</p>';
+        return;
+      }
+      grid.innerHTML = dests.map(d => `
+        <div class="dest-card" onclick="window.location='index.html#planner'">
+          <div class="dest-card-img">
+            <span class="dest-type-pill">${d.type.replace('_', ' ')}</span>
+            ${d.image_url
+              ? `<img src="${d.image_url}" alt="${d.name}" loading="lazy" onerror="this.style.display='none'" />`
+              : ''}
+            <span style="position:relative;z-index:1;font-size:3rem;">${d.emoji || '📍'}</span>
+          </div>
+          <div class="dest-card-body">
+            <div class="dest-card-name">${d.emoji || ''} ${d.name}</div>
+            <div class="dest-card-state">${d.state}, ${d.country}</div>
+            <div class="dest-card-desc">${d.description}</div>
+            <div class="dest-card-tags">
+              ${(d.tags || []).slice(0,4).map(t =>
+                `<span class="dest-tag">${t.replace('_',' ')}</span>`
+              ).join('')}
+            </div>
+            <div class="dest-card-footer">
+              <span class="dest-rating">⭐ ${d.rating || '4.5'}</span>
+              <span class="dest-cost">from <strong>₹${(d.avg_cost_per_day||2000).toLocaleString('en-IN')}/day</strong></span>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterDestinations(type, btn) {
+      document.querySelectorAll('.dest-filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      if (type === 'all') renderDestinations(allDestinations);
+      else renderDestinations(allDestinations.filter(d => d.type === type));
+    }
+  </script>
+</body>
+</html>

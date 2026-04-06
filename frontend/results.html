@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Itinerary — Smart Travel Planner</title>
+  <meta name="description" content="Your personalized AI-generated travel itinerary with Bayesian probability scores, hidden gems, and budget breakdown." />
+  <link rel="stylesheet" href="css/theme.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈️</text></svg>" />
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <!-- jsPDF + html2canvas -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <style>
+    .tab-bar { background: var(--surface-02); }
+    .tab-btn { color: var(--text-secondary); }
+    .tab-btn.active { background: var(--grad-primary); color: white; }
+    .card { background: var(--surface-01); border: 1px solid var(--border); }
+    .card-flat { background: var(--surface-02); border: 1px solid var(--border); }
+    .info-row { border-bottom-color: var(--border); }
+    .info-label { color: var(--text-secondary); }
+    .info-value { color: var(--text-primary); }
+    .alt-notice { background: rgba(224,64,251,0.08); border-left-color: var(--tertiary); }
+    .download-bar {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
+      background: var(--surface-01); backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 1rem; flex-wrap: wrap;
+    }
+    .main-content-results { padding-bottom: 100px; }
+    .results-layout {
+      display: grid; grid-template-columns: 340px 1fr;
+      gap: 1.5rem; align-items: start;
+    }
+    @media(max-width:900px) { .results-layout { grid-template-columns: 1fr; } }
+    .sidebar-sticky { position: sticky; top: 88px; }
+    .no-data { text-align: center; padding: 3rem; color: var(--text-secondary); }
+    .dest-type-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: var(--radius-full); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+    .packing-section { margin-bottom: 2rem; }
+    .packing-section h4 { font-size: 0.875rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .budget-legend-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8125rem; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    h1, h2, h3, h4 { color: var(--text-primary); }
+    .body-md { color: var(--text-secondary); }
+    .label-sm { color: var(--text-muted); }
+    .toast { background: var(--surface-02); border: 1px solid var(--border); color: var(--text-primary); }
+  </style>
+</head>
+
+
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">✈️</div>
+      <span class="sidebar-logo-text">Voyager AI</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Main</div>
+      <a href="dashboard.html" class="sidebar-link"><span class="sidebar-icon">🏠</span><span class="sidebar-text">Dashboard</span></a>
+      <a href="index.html#planner" class="sidebar-link"><span class="sidebar-icon">🗺️</span><span class="sidebar-text">Plan a Trip</span><span class="sidebar-badge">AI</span></a>
+      <a href="results.html" class="sidebar-link active"><span class="sidebar-icon">📋</span><span class="sidebar-text">My Itineraries</span></a>
+      <div class="sidebar-section-label" style="margin-top:0.75rem;">Discover</div>
+      <a href="index.html#how-it-works" class="sidebar-link"><span class="sidebar-icon">🧠</span><span class="sidebar-text">How It Works</span></a>
+      <a href="#" class="sidebar-link"><span class="sidebar-icon">💎</span><span class="sidebar-text">Hidden Gems</span></a>
+      <div class="sidebar-section-label" style="margin-top:0.75rem;">Account</div>
+      <a href="#" class="sidebar-link"><span class="sidebar-icon">⚙️</span><span class="sidebar-text">Settings</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="sidebar-toggle-btn" onclick="toggleSidebar()">
+        <span class="sidebar-toggle-icon">◀</span>
+        <span class="sidebar-toggle-text">Collapse</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content-results" id="mainContent" style="margin-left:var(--sidebar-width);transition:margin-left var(--transition-smooth);">
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <div class="navbar-left">
+      <button class="navbar-menu-btn" onclick="toggleMobileSidebar()" title="Menu">☰</button>
+      <span class="navbar-title">📋 My Itinerary</span>
+    </div>
+    <div class="navbar-links">
+      <a href="dashboard.html" class="navbar-link">Dashboard</a>
+      <a href="index.html" class="navbar-link">Planner</a>
+      <a href="results.html" class="navbar-link active">Results</a>
+    </div>
+    <div class="navbar-right">
+      <a href="index.html" class="btn btn-ghost btn-sm">← Edit Preferences</a>
+      <button class="btn btn-primary btn-sm btn-ripple" onclick="regenerateItinerary()">🔄 Regenerate</button>
+      <div class="navbar-divider"></div>
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle theme">
+        <div class="theme-toggle-knob" id="themeKnob">🌙</div>
+      </button>
+      <div class="navbar-avatar">V</div>
+    </div>
+  </nav>
+
+  <!-- Results Hero -->
+  <div class="results-hero" id="resultsHero" style="padding-top:calc(var(--navbar-height) + 2rem);">
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="container" style="position:relative;">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:var(--space-xl);">
+        <div style="color:white;">
+          <div class="label-sm" style="color:rgba(255,255,255,0.65);margin-bottom:0.5rem;">🧠 Bayesian Recommendation</div>
+          <h1 class="headline-lg" style="color:white;margin-bottom:0.5rem;" id="destName">Your Destination</h1>
+          <p id="destDescription" style="opacity:0.8;max-width:560px;font-size:0.9375rem;">Loading your personalized itinerary...</p>
+          <div style="display:flex;gap:var(--space-md);margin-top:var(--space-lg);flex-wrap:wrap;" id="destTags"></div>
+        </div>
+        <!-- Score Ring -->
+        <div style="text-align:center;color:white;flex-shrink:0;">
+          <div class="score-ring">
+            <svg width="120" height="120" class="score-ring-svg" style="position:absolute;">
+              <circle class="score-ring-track" cx="60" cy="60" r="52" stroke-width="6"/>
+              <circle class="score-ring-fill" cx="60" cy="60" r="52" stroke-width="6"
+                stroke-dasharray="326.73" stroke-dashoffset="326.73" id="scoreCircle"/>
+            </svg>
+            <div style="position:relative; width:160px;height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+              <div style="font-size:2rem;font-weight:800;line-height:1;" id="probScore">—</div>
+              <div style="font-size:0.75rem;opacity:0.7;margin-top:0.25rem;">Match Score</div>
+            </div>
+          </div>
+          <div style="margin-top:0.5rem;font-size:0.8125rem;opacity:0.7;">Probability Score</div>
+        </div>
+      </div>
+
+      <!-- Trip Meta Cards -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:var(--space-md);margin-top:var(--space-xl);" id="metaCards"></div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="section" style="padding-top:2rem;padding-bottom:6rem;">
+    <div class="container">
+
+      <!-- No Data State -->
+      <div class="no-data" id="noDataState" style="display:none;">
+        <div style="font-size:4rem;margin-bottom:1rem;">🗺️</div>
+        <h3 class="headline-sm">No Itinerary Found</h3>
+        <p class="body-md" style="margin:0.5rem 0 1.5rem;">Please go back and fill in your preferences first.</p>
+        <a href="index.html" class="btn btn-primary">← Plan My Trip</a>
+      </div>
+
+      <!-- Results Layout -->
+      <div class="results-layout" id="resultsLayout">
+
+        <!-- Sidebar -->
+        <div class="sidebar-sticky">
+          <div class="card" style="margin-bottom:var(--space-lg);">
+            <div class="label-sm" style="margin-bottom:var(--space-md);">Trip Details</div>
+            <div id="tripDetails"></div>
+          </div>
+
+          <!-- Compatibility Score -->
+          <div class="card" style="margin-bottom:var(--space-lg);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-md);">
+              <div class="label-sm">Compatibility Score</div>
+              <div style="font-family:var(--font-display);font-size:1.25rem;font-weight:800;color:var(--secondary);" id="compatScore">—%</div>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" id="compatBar" style="width:0%;background:var(--grad-secondary);"></div>
+            </div>
+            <p class="body-md" style="margin-top:0.5rem;font-size:0.75rem;" id="compatLabel">Calculating...</p>
+          </div>
+
+          <!-- Destination Ranking -->
+          <div class="card" style="margin-bottom:var(--space-lg);">
+            <div class="label-sm" style="margin-bottom:var(--space-lg);">Destination Probability Ranking</div>
+            <div id="destRanking"></div>
+          </div>
+
+          <!-- Map Placeholder -->
+          <div class="map-placeholder">
+            <div class="map-grid"></div>
+            <div style="position:relative;font-size:2rem;">📍</div>
+            <div style="position:relative;font-weight:600;font-size:0.9rem;" id="mapText">Your Destination</div>
+            <div style="position:relative;font-size:0.75rem;opacity:0.7;">Interactive map coming soon</div>
+          </div>
+        </div>
+
+        <!-- Main Panel -->
+        <div>
+          <!-- Tab Bar -->
+          <div class="tab-bar">
+            <button class="tab-btn active" onclick="switchTab('itinerary',this)" id="tab-itinerary">📅 Itinerary</button>
+            <button class="tab-btn" onclick="switchTab('budget',this)" id="tab-budget">💰 Budget</button>
+            <button class="tab-btn" onclick="switchTab('gems',this)" id="tab-gems">💎 Hidden Gems</button>
+            <button class="tab-btn" onclick="switchTab('packing',this)" id="tab-packing">🧳 Packing</button>
+            <button class="tab-btn" onclick="switchTab('alt',this)" id="tab-alt">🔄 Plan B</button>
+          </div>
+
+          <!-- TAB: Itinerary ────────────────────────────────────── -->
+          <div class="tab-content active" id="content-itinerary">
+            <div class="plan-toggle" style="margin-bottom:var(--space-xl);max-width:280px;">
+              <button class="plan-toggle-btn active" id="planABtn" onclick="showPlan('A')">Plan A</button>
+              <button class="plan-toggle-btn" id="planBBtn" onclick="showPlan('B')">Plan B</button>
+            </div>
+            <div id="planAContent"></div>
+            <div id="planBContent" style="display:none;"></div>
+          </div>
+
+          <!-- TAB: Budget ─────────────────────────────────────────── -->
+          <div class="tab-content" id="content-budget">
+            <div class="grid-2">
+              <div class="card">
+                <div class="label-sm" style="margin-bottom:var(--space-lg);">Budget Distribution</div>
+                <div class="chart-container">
+                  <canvas id="budgetChart" height="260"></canvas>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:0.5rem;margin-top:var(--space-lg);" id="budgetLegend"></div>
+              </div>
+              <div>
+                <div class="card" style="margin-bottom:var(--space-md);">
+                  <div class="label-sm" style="margin-bottom:var(--space-md);">Cost Breakdown</div>
+                  <div id="budgetBreakdown"></div>
+                </div>
+                <div class="card card-flat" style="background:rgba(74,64,224,0.06);">
+                  <div class="label-sm" style="margin-bottom:0.5rem;color:var(--primary);">💡 Budget Tip</div>
+                  <p class="body-md" id="budgetTip">Loading tip...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB: Hidden Gems ──────────────────────────────────── -->
+          <div class="tab-content" id="content-gems">
+            <p class="body-md" style="margin-bottom:var(--space-xl);">
+              These lesser-known destinations are scored using our uniqueness algorithm:
+              <strong>score = (1 − popularity) × 0.4 + uniqueness × 0.4 + mood_fit × 0.2</strong>
+            </p>
+            <div id="gemsGrid" class="grid-2"></div>
+          </div>
+
+          <!-- TAB: Packing ─────────────────────────────────────── -->
+          <div class="tab-content" id="content-packing">
+            <p class="body-md" style="margin-bottom:var(--space-xl);">
+              Packing list generated from your destination type, weather conditions, and selected activities.
+              Check off items as you pack!
+            </p>
+            <div id="packingLists"></div>
+          </div>
+
+          <!-- TAB: Plan B ─────────────────────────────────────── -->
+          <div class="tab-content" id="content-alt">
+            <div class="alt-notice">
+              <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.25rem;">
+                <span>🔄</span>
+                <strong style="color:var(--tertiary);">Alternative Itinerary</strong>
+              </div>
+              <p class="body-md" id="altReason">Generated as a contingency if conditions change.</p>
+            </div>
+            <div id="altDetails"></div>
+          </div>
+
+        </div>
+      </div>
+  </div>
+  </div><!-- /main-content-results -->
+
+  <!-- Download Bar -->
+  <div class="download-bar" style="background:var(--bg-card);">
+    <div style="display:flex;align-items:center;gap:var(--space-md);">
+      <div>
+        <div style="font-family:var(--font-display);font-size:0.9rem;font-weight:700;" id="dlDestName">Your Itinerary</div>
+        <div class="body-md" style="font-size:0.75rem;" id="dlMeta">Ready to download</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:var(--space-md);flex-wrap:wrap;">
+      <button class="btn btn-outline btn-sm" onclick="window.print()">🖨️ Print</button>
+      <button class="btn btn-secondary btn-sm btn-ripple" onclick="downloadPDF()">⬇️ Download PDF</button>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div style="font-size:3rem;animation:float 2s ease-in-out infinite;">✈️</div>
+    <div class="loading-dots">
+      <div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div>
+    </div>
+    <div class="loading-text" id="loadingText">Loading Itinerary...</div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast">
+    <span id="toastIcon">ℹ️</span>
+    <span id="toastMsg">Message</span>
+  </div>
+
+  <script>
+    const html = document.documentElement;
+    const themeKnob = document.getElementById('themeKnob');
+    function applyTheme(t) {
+      html.setAttribute('data-theme', t);
+      if(themeKnob) themeKnob.textContent = t==='dark'?'🌙':'☀️';
+      localStorage.setItem('voyager-theme', t);
+    }
+    function toggleTheme() { applyTheme(html.getAttribute('data-theme')==='dark'?'light':'dark'); }
+    applyTheme(localStorage.getItem('voyager-theme')||'dark');
+
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+    const navbar = document.getElementById('navbar');
+    function toggleSidebar() {
+      sidebar.classList.toggle('collapsed');
+      const w = sidebar.classList.contains('collapsed')? 'var(--sidebar-collapsed)':'var(--sidebar-width)';
+      mainContent.style.marginLeft = w;
+      navbar.style.left = w;
+    }
+    function toggleMobileSidebar() {
+      sidebar.classList.toggle('mobile-open');
+      document.getElementById('sidebarOverlay').classList.toggle('active');
+    }
+    function closeSidebar() {
+      sidebar.classList.remove('mobile-open');
+      document.getElementById('sidebarOverlay').classList.remove('active');
+    }
+    if (window.innerWidth < 768) {
+      mainContent.style.marginLeft = '0';
+      navbar.style.left = '0';
+    }
+  </script>
+  <script src="js/charts.js"></script>
+  <script src="js/pdf-export.js"></script>
+  <script src="js/results.js"></script>
+</body>
+</html>
