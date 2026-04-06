@@ -311,8 +311,13 @@ def _format_slot(act: Dict | None, start_time: str) -> Dict:
 # 6.  HIDDEN GEMS
 # ─────────────────────────────────────────────────────────────────────────────
 
-def recommend_hidden_gems(mood: str, budget_inr: int, top_n: int = 3) -> List[Dict]:
-    gems = DATASET['hidden_gems']
+def recommend_hidden_gems(mood: str, budget_inr: int, top_n: int = 3, dest_id: str = None) -> List[Dict]:
+    gems = DATASET.get('hidden_gems', [])
+    if dest_id:
+        gems = [g for g in gems if g.get('dest_id') == dest_id]
+        if not gems:
+            gems = DATASET.get('hidden_gems', [])
+            
     scored = []
     for gem in gems:
         score = (1 - gem['popularity_score']) * 0.4 + gem['uniqueness_value'] * 0.4
@@ -329,11 +334,15 @@ def recommend_hidden_gems(mood: str, budget_inr: int, top_n: int = 3) -> List[Di
 # 7.  PACKING LIST
 # ─────────────────────────────────────────────────────────────────────────────
 
-def generate_packing_list(dest_type: str, weather: str, activity_types: List[str]) -> Dict[str, List[str]]:
-    templates = DATASET['packing_templates']
-    common    = templates.get('common', [])
+def generate_packing_list(dest_id: str, dest_type: str, weather: str, activity_types: List[str]) -> Dict[str, List[str]]:
+    templates = DATASET.get('packing_templates', {})
+    common    = templates.get('common', ["Toothbrush", "Power Bank", "First Aid Kit", "Water Bottle", "Hand Sanitizer"])
     dest_pack = templates.get(dest_type, [])
     weather_pack = WEATHER_PROFILES.get(weather, {}).get('packing_extras', [])
+    
+    # Add newly generated location specific items
+    location_extras = DESTINATIONS.get(dest_id, {}).get('location_packing_items', [])
+    dest_pack = dest_pack + location_extras
 
     activity_pack = []
     for atype in set(activity_types):
@@ -427,11 +436,11 @@ def plan_itinerary(preferences: Dict) -> Dict[str, Any]:
     itinerary     = generate_itinerary(best_dest_id, activities, duration_days, budget_split)
 
     # Step 6: Hidden gems
-    hidden_gems   = recommend_hidden_gems(mood, budget_inr)
+    hidden_gems   = recommend_hidden_gems(mood, budget_inr, top_n=3, dest_id=best_dest_id)
 
     # Step 7: Packing list
     activity_types = list(set(a.get('type', 'leisure') for a in activities))
-    packing_list  = generate_packing_list(best_dest['type'], weather, activity_types)
+    packing_list  = generate_packing_list(best_dest_id, best_dest['type'], weather, activity_types)
 
     # Step 8: Alternative plan (Plan B)
     alt_plan      = generate_alternative_plan(
