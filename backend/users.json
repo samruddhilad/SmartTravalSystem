@@ -6,7 +6,27 @@
     "last_name": "User",
     "password_hash": "$2b$12$QfI3UdWJgVcO6Gfv1TIP1uVWUkk8Ug0rYMq.3JoVjieYDEUzJcnm6",
     "created_at": "2025-01-01T00:00:00Z",
-    "trips_count": 3,
+    "trips_count": 4,
     "avatar_initials": "DU"
+  },
+  {
+    "id": "73058854-1647-409d-9a83-534b7801561b",
+    "email": "test5@test.com",
+    "first_name": "Test",
+    "last_name": "User",
+    "password_hash": "$2b$12$ddaufK3AoKs4xluf3tw5fOu7/dOd.2t0ZUQFOyI.ShpEaYt.hQNEG",
+    "created_at": "2026-04-06T20:30:29.784235+00:00",
+    "trips_count": 0,
+    "avatar_initials": "TU"
+  },
+  {
+    "id": "57022ebf-12fc-4650-8428-9920ba8f0a64",
+    "email": "john.doe@example.com",
+    "first_name": "John",
+    "last_name": "Doe",
+    "password_hash": "$2b$12$uKnJiWEHfqbhy3vDrs52oeQ/enxZ0fAbl.YMoT5I/tCs/1IfGgOoq",
+    "created_at": "2026-04-06T20:32:29.699970+00:00",
+    "trips_count": 0,
+    "avatar_initials": "JD"
   }
 ]

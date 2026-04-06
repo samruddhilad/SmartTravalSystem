@@ -1,0 +1,580 @@
+[
+  {
+    "user_id": "demo-user-001",
+    "trip": {
+      "destination": {
+        "id": "ooty",
+        "name": "Ooty",
+        "country": "India",
+        "type": "hill_station",
+        "mood_match": [
+          "romantic",
+          "relaxed",
+          "family"
+        ],
+        "weather_types": [
+          "cool",
+          "misty",
+          "rainy"
+        ],
+        "budget_tiers": {
+          "budget": true,
+          "mid": true,
+          "luxury": true
+        },
+        "avg_cost_per_day": 2000,
+        "popularity_score": 0.9,
+        "crowd_level": "high",
+        "uniqueness_value": 0.75,
+        "best_season": [
+          "October",
+          "March"
+        ],
+        "tags": [
+          "tea_gardens",
+          "lakes",
+          "nature"
+        ],
+        "lat": 11.4102,
+        "lon": 76.695,
+        "description": "Lush green valleys and scenic lakes.",
+        "image_keyword": "ooty",
+        "location_packing_items": [
+          "Trekking Boots",
+          "Thermal Innerwear",
+          "Beanie / Gloves",
+          "Heavy Jacket",
+          "Woolen Socks"
+        ]
+      },
+      "probability_score": 9.7,
+      "dest_ranking": [
+        {
+          "id": "ooty",
+          "name": "Ooty",
+          "probability": 9.7,
+          "type": "hill_station"
+        },
+        {
+          "id": "munnar",
+          "name": "Munnar",
+          "probability": 9.7,
+          "type": "hill_station"
+        },
+        {
+          "id": "kodaikanal",
+          "name": "Kodaikanal",
+          "probability": 9.7,
+          "type": "hill_station"
+        },
+        {
+          "id": "darjeeling",
+          "name": "Darjeeling",
+          "probability": 8.4,
+          "type": "hill_station"
+        },
+        {
+          "id": "shillong",
+          "name": "Shillong",
+          "probability": 8.4,
+          "type": "hill_station"
+        }
+      ],
+      "compatibility_score": 55,
+      "activities": [
+        {
+          "id": "ooty_hike",
+          "destination_ids": [
+            "ooty"
+          ],
+          "name": "Hiking and Photography Trail in Ooty",
+          "type": "outdoor",
+          "time_slot": "afternoon",
+          "duration_hours": 3,
+          "cost_inr": 200,
+          "weather_suitable": [
+            "sunny",
+            "cool",
+            "warm"
+          ],
+          "mood_tags": [
+            "romantic",
+            "relaxed",
+            "family"
+          ],
+          "interest_tags": [
+            "tea_gardens",
+            "lakes",
+            "nature",
+            "outdoor"
+          ],
+          "energy_level": "high",
+          "_score": 1.0
+        },
+        {
+          "id": "ooty_culture",
+          "destination_ids": [
+            "ooty"
+          ],
+          "name": "Heritage Architecture Walk",
+          "type": "cultural",
+          "time_slot": "evening",
+          "duration_hours": 3,
+          "cost_inr": 0,
+          "weather_suitable": [
+            "sunny",
+            "cool",
+            "warm"
+          ],
+          "mood_tags": [
+            "romantic",
+            "relaxed",
+            "family"
+          ],
+          "interest_tags": [
+            "tea_gardens",
+            "lakes",
+            "nature",
+            "cultural"
+          ],
+          "energy_level": "medium",
+          "_score": 1.0
+        },
+        {
+          "id": "ooty_food",
+          "destination_ids": [
+            "ooty"
+          ],
+          "name": "Street Food Tasting Tour",
+          "type": "culinary",
+          "time_slot": "evening",
+          "duration_hours": 2,
+          "cost_inr": 500,
+          "weather_suitable": [
+            "sunny",
+            "cool",
+            "warm"
+          ],
+          "mood_tags": [
+            "romantic",
+            "relaxed",
+            "family"
+          ],
+          "interest_tags": [
+            "tea_gardens",
+            "lakes",
+            "nature",
+            "culinary"
+          ],
+          "energy_level": "medium",
+          "_score": 1.0
+        },
+        {
+          "id": "ooty_leisure",
+          "destination_ids": [
+            "ooty"
+          ],
+          "name": "Sunset Viewpoint Registration",
+          "type": "leisure",
+          "time_slot": "evening",
+          "duration_hours": 2,
+          "cost_inr": 100,
+          "weather_suitable": [
+            "sunny",
+            "cool",
+            "warm"
+          ],
+          "mood_tags": [
+            "romantic",
+            "relaxed",
+            "family"
+          ],
+          "interest_tags": [
+            "tea_gardens",
+            "lakes",
+            "nature",
+            "leisure"
+          ],
+          "energy_level": "low",
+          "_score": 1.0
+        },
+        {
+          "id": "ooty_outdoor2",
+          "destination_ids": [
+            "ooty"
+          ],
+          "name": "Sunrise Viewpoint Visit",
+          "type": "outdoor",
+          "time_slot": "morning",
+          "duration_hours": 2,
+          "cost_inr": 50,
+          "weather_suitable": [
+            "sunny",
+            "cool",
+            "warm"
+          ],
+          "mood_tags": [
+            "romantic",
+            "relaxed",
+            "family"
+          ],
+          "interest_tags": [
+            "tea_gardens",
+            "lakes",
+            "nature",
+            "outdoor"
+          ],
+          "energy_level": "high",
+          "_score": 1.0
+        },
+        {
+          "id": "ooty_culture2",
+          "destination_ids": [
+            "ooty"
+          ],
+          "name": "Visit to Main Temple/Monument",
+          "type": "cultural",
+          "time_slot": "evening",
+          "duration_hours": 3,
+          "cost_inr": 100,
+          "weather_suitable": [
+            "sunny",
+            "cool",
+            "warm"
+          ],
+          "mood_tags": [
+            "romantic",
+            "relaxed",
+            "family"
+          ],
+          "interest_tags": [
+            "tea_gardens",
+            "lakes",
+            "nature",
+            "cultural"
+          ],
+          "energy_level": "medium",
+          "_score": 1.0
+        }
+      ],
+      "itinerary": [
+        {
+          "day": 1,
+          "theme": "Arrival & First Impressions of Ooty",
+          "morning": {
+            "activity": "Sunrise Viewpoint Visit",
+            "time": "09:00",
+            "duration": "2 hours",
+            "cost": 50,
+            "type": "outdoor",
+            "energy": "high"
+          },
+          "afternoon": {
+            "activity": "Hiking and Photography Trail in Ooty",
+            "time": "13:00",
+            "duration": "3 hours",
+            "cost": 200,
+            "type": "outdoor",
+            "energy": "high"
+          },
+          "evening": {
+            "activity": "Heritage Architecture Walk",
+            "time": "18:00",
+            "duration": "3 hours",
+            "cost": 0,
+            "type": "cultural",
+            "energy": "medium"
+          },
+          "day_budget": 6825
+        },
+        {
+          "day": 2,
+          "theme": "Exploring the Heart of Ooty",
+          "morning": {
+            "activity": "Heritage Architecture Walk",
+            "time": "09:00",
+            "duration": "3 hours",
+            "cost": 0,
+            "type": "cultural",
+            "energy": "medium"
+          },
+          "afternoon": {
+            "activity": "Street Food Tasting Tour",
+            "time": "13:00",
+            "duration": "2 hours",
+            "cost": 500,
+            "type": "culinary",
+            "energy": "medium"
+          },
+          "evening": {
+            "activity": "Free time / Leisure",
+            "time": "18:00",
+            "duration": "2 hours",
+            "cost": 0,
+            "type": "leisure"
+          },
+          "day_budget": 6825
+        }
+      ],
+      "budget_split": {
+        "transport": 4500,
+        "accommodation": 3600,
+        "food": 1600,
+        "activities": 950,
+        "shopping": 3000,
+        "total": 13650
+      },
+      "hidden_gems": [
+        {
+          "id": "ooty_gem_0",
+          "dest_id": "ooty",
+          "name": "Forgotten Meadow in Ooty",
+          "state": "Near Ooty",
+          "avg_cost_per_day": 1196,
+          "popularity_score": 0.1565805136138337,
+          "uniqueness_value": 0.9179245396964948,
+          "mood_match": [
+            "romantic",
+            "relaxed",
+            "family",
+            "reflective"
+          ],
+          "best_for": [
+            "photography",
+            "peace",
+            "culture"
+          ],
+          "description": "A deeply local, off-the-beaten-path experience hidden away from the main tourist hubs of Ooty. Perfect for authentic exploration.",
+          "_score": 1.0045376104330646
+        },
+        {
+          "id": "ooty_gem_2",
+          "dest_id": "ooty",
+          "name": "Quiet Meadow in Ooty",
+          "state": "Near Ooty",
+          "avg_cost_per_day": 502,
+          "popularity_score": 0.25977907025265423,
+          "uniqueness_value": 0.9430711476257927,
+          "mood_match": [
+            "romantic",
+            "relaxed",
+            "family",
+            "reflective"
+          ],
+          "best_for": [
+            "photography",
+            "peace",
+            "culture"
+          ],
+          "description": "A deeply local, off-the-beaten-path experience hidden away from the main tourist hubs of Ooty. Perfect for authentic exploration.",
+          "_score": 0.9733168309492554
+        },
+        {
+          "id": "ooty_gem_1",
+          "dest_id": "ooty",
+          "name": "Forgotten Meadow in Ooty",
+          "state": "Near Ooty",
+          "avg_cost_per_day": 1165,
+          "popularity_score": 0.34425155259199447,
+          "uniqueness_value": 0.9268248858431641,
+          "mood_match": [
+            "romantic",
+            "relaxed",
+            "family",
+            "reflective"
+          ],
+          "best_for": [
+            "photography",
+            "peace",
+            "culture"
+          ],
+          "description": "A deeply local, off-the-beaten-path experience hidden away from the main tourist hubs of Ooty. Perfect for authentic exploration.",
+          "_score": 0.9330293333004679
+        }
+      ],
+      "packing_list": {
+        "essentials": [
+          "cash_and_cards",
+          "medications",
+          "passport_or_id",
+          "travel_insurance_docs",
+          "reusable_bags",
+          "portable_battery",
+          "first_aid_kit",
+          "travel_adapter",
+          "phone_charger"
+        ],
+        "destination": [
+          "comfortable_shoes",
+          "moisturizer",
+          "Woolen Socks",
+          "hot_beverage_flask",
+          "light_jacket",
+          "layers",
+          "Beanie / Gloves",
+          "camera",
+          "Heavy Jacket",
+          "Trekking Boots",
+          "Thermal Innerwear"
+        ],
+        "weather": [
+          "layers",
+          "comfortable_shoes",
+          "light_jacket"
+        ],
+        "activities": [
+          "comfortable_shoes",
+          "sunscreen",
+          "small_notebook",
+          "insect_repellent",
+          "camera",
+          "modest_clothing"
+        ]
+      },
+      "alternative_plan": {
+        "reason": "weather_change",
+        "destination": {
+          "id": "munnar",
+          "name": "Munnar",
+          "country": "India",
+          "type": "hill_station",
+          "mood_match": [
+            "romantic",
+            "nature",
+            "relaxed"
+          ],
+          "weather_types": [
+            "cool",
+            "misty",
+            "rainy"
+          ],
+          "budget_tiers": {
+            "budget": true,
+            "mid": true,
+            "luxury": true
+          },
+          "avg_cost_per_day": 2200,
+          "popularity_score": 0.85,
+          "crowd_level": "high",
+          "uniqueness_value": 0.85,
+          "best_season": [
+            "October",
+            "March"
+          ],
+          "tags": [
+            "tea_gardens",
+            "waterfalls",
+            "nature"
+          ],
+          "lat": 10.0889,
+          "lon": 77.0595,
+          "description": "Rolling hills covered in tea plantations.",
+          "image_keyword": "munnar",
+          "location_packing_items": [
+            "Thermal Innerwear",
+            "Trekking Boots",
+            "Woolen Socks",
+            "Heavy Jacket",
+            "Beanie / Gloves"
+          ]
+        },
+        "itinerary": [
+          {
+            "day": 1,
+            "theme": "Arrival & First Impressions of Munnar",
+            "morning": {
+              "activity": "Hiking and Photography Trail in Munnar",
+              "time": "09:00",
+              "duration": "3 hours",
+              "cost": 200,
+              "type": "outdoor",
+              "energy": "high"
+            },
+            "afternoon": {
+              "activity": "Street Food Tasting Tour",
+              "time": "13:00",
+              "duration": "2 hours",
+              "cost": 500,
+              "type": "culinary",
+              "energy": "medium"
+            },
+            "evening": {
+              "activity": "Free time / Leisure",
+              "time": "18:00",
+              "duration": "2 hours",
+              "cost": 0,
+              "type": "leisure"
+            },
+            "day_budget": 5925
+          },
+          {
+            "day": 2,
+            "theme": "Exploring the Heart of Munnar",
+            "morning": {
+              "activity": "Heritage Architecture Walk",
+              "time": "09:00",
+              "duration": "3 hours",
+              "cost": 0,
+              "type": "cultural",
+              "energy": "medium"
+            },
+            "afternoon": {
+              "activity": "Sunset Viewpoint Registration",
+              "time": "13:00",
+              "duration": "2 hours",
+              "cost": 100,
+              "type": "leisure",
+              "energy": "low"
+            },
+            "evening": {
+              "activity": "Free time / Leisure",
+              "time": "18:00",
+              "duration": "2 hours",
+              "cost": 0,
+              "type": "leisure"
+            },
+            "day_budget": 5925
+          }
+        ],
+        "budget_split": {
+          "transport": 4500,
+          "accommodation": 1800,
+          "food": 1600,
+          "activities": 950,
+          "shopping": 3000,
+          "total": 11850
+        },
+        "note": "Plan B selected due to weather change. Munnar is an excellent alternative."
+      },
+      "user_preferences": {
+        "mood": "romantic",
+        "budget": 30000.0,
+        "weather": "cool",
+        "group_type": "solo",
+        "duration_days": 2,
+        "interests": [
+          "nature",
+          "food",
+          "nightlife"
+        ],
+        "transport": "",
+        "accommodation": "",
+        "start_date": "",
+        "end_date": ""
+      },
+      "trip_summary": {
+        "destination": "Ooty",
+        "duration": "2 Days",
+        "total_budget": "\u20b930,000",
+        "estimated_spend": "\u20b913,650",
+        "start_date": "",
+        "end_date": "",
+        "group_type": "Solo",
+        "transport": "",
+        "accommodation": ""
+      },
+      "id": "4c7034db-39f1-40f5-acaf-946babf2f40b",
+      "created_at": "2026-04-07T01:46:58.729496"
+    }
+  }
+]
