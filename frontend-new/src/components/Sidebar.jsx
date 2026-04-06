@@ -11,7 +11,7 @@ const NAV_ITEMS = [
   ]},
   { section: 'Discover', items: [
     { to: '/#how-it-works', icon: '🧠', label: 'How It Works' },
-    { to: '#',              icon: '🌟', label: 'Destinations' },
+    { to: '/my-trips',      icon: '🌟', label: 'My Trips' },
     { to: '#',              icon: '💎', label: 'Hidden Gems' },
   ]},
   { section: 'Account', items: [

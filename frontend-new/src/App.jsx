@@ -7,6 +7,7 @@ import LoginPage    from './pages/LoginPage';
 import HomePage     from './pages/HomePage';
 import ResultsPage  from './pages/ResultsPage';
 import DashboardPage from './pages/DashboardPage';
+import MyTripsPage  from './pages/MyTripsPage';
 
 export default function App() {
   return (
@@ -26,6 +27,9 @@ export default function App() {
             } />
             <Route path="/dashboard" element={
               <ProtectedRoute><DashboardPage /></ProtectedRoute>
+            } />
+            <Route path="/my-trips" element={
+              <ProtectedRoute><MyTripsPage /></ProtectedRoute>
             } />
 
             {/* Fallback */}

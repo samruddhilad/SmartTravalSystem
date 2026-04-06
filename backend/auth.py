@@ -38,6 +38,11 @@ class RegisterRequest(BaseModel):
     last_name: str  = ""
 
 
+class UpdateUserRequest(BaseModel):
+    first_name: str
+    last_name: str
+
+
 class LoginRequest(BaseModel):
     email: str
     password: str
@@ -108,16 +113,22 @@ def _user_to_out(u: dict) -> UserOut:
 
 
 # ── Dependency: get current user ───────────────────────────────────────────────
-def get_current_user(creds: Optional[HTTPAuthorizationCredentials] = Depends(bearer)) -> dict:
+def get_current_user_optional(creds: Optional[HTTPAuthorizationCredentials] = Depends(bearer)) -> Optional[dict]:
     if not creds:
-        raise HTTPException(status_code=401, detail="Not authenticated")
+        return None
     user_id = _decode_token(creds.credentials)
     if not user_id:
-        raise HTTPException(status_code=401, detail="Invalid or expired token")
+        return None
     for u in _load_users():
         if u["id"] == user_id:
             return u
-    raise HTTPException(status_code=401, detail="User not found")
+    return None
+
+def get_current_user(creds: Optional[HTTPAuthorizationCredentials] = Depends(bearer)) -> dict:
+    u = get_current_user_optional(creds)
+    if not u:
+        raise HTTPException(status_code=401, detail="Not authenticated or invalid token")
+    return u
 
 
 # ── Routes ─────────────────────────────────────────────────────────────────────
@@ -162,3 +173,20 @@ def login(body: LoginRequest):
 @router.get("/me", response_model=UserOut)
 def me(current_user: dict = Depends(get_current_user)):
     return _user_to_out(current_user)
+
+
+@router.put("/me", response_model=UserOut)
+def update_me(body: UpdateUserRequest, current_user: dict = Depends(get_current_user)):
+    users = _load_users()
+    for u in users:
+        if u["id"] == current_user["id"]:
+            u["first_name"] = body.first_name.strip()
+            u["last_name"] = body.last_name.strip()
+            # update avatar initials
+            fn = u["first_name"]
+            ln = u["last_name"]
+            u["avatar_initials"] = ((fn[:1] + ln[:1]) or "VU").upper()
+            _save_users(users)
+            return _user_to_out(u)
+    raise HTTPException(status_code=404, detail="User not found")
+

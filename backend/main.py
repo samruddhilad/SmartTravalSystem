@@ -11,7 +11,26 @@ from typing import List, Optional
 import uvicorn
 
 from bayesian_engine import plan_itinerary, DESTINATIONS, DATASET, recommend_hidden_gems, generate_packing_list, generate_alternative_plan
-from auth import router as auth_router
+from auth import router as auth_router, get_current_user_optional, get_current_user, _load_users, _save_users
+from fastapi import Depends
+import json
+from pathlib import Path
+import os
+import uuid
+import time
+from datetime import datetime
+
+TRIPS_FILE = Path(__file__).parent / "trips.json"
+
+def _load_trips() -> list:
+    if not TRIPS_FILE.exists():
+        return []
+    with open(TRIPS_FILE, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+def _save_trips(trips: list):
+    with open(TRIPS_FILE, "w", encoding="utf-8") as f:
+        json.dump(trips, f, indent=2)
 
 # ── App ────────────────────────────────────────────────────────────────────────
 app = FastAPI(
@@ -70,14 +89,37 @@ def health():
 
 
 @app.post("/api/generate-itinerary")
-def generate_itinerary(prefs: ItineraryRequest):
+def generate_itinerary(prefs: ItineraryRequest, current_user: dict = Depends(get_current_user_optional)):
     try:
         result = plan_itinerary(prefs.model_dump())
+        
+        if current_user:
+            result['id'] = str(uuid.uuid4())
+            result['created_at'] = datetime.now().isoformat()
+            trips = _load_trips()
+            trips.append({"user_id": current_user["id"], "trip": result})
+            _save_trips(trips)
+            
+            # update user trip count
+            users = _load_users()
+            for u in users:
+                if u["id"] == current_user["id"]:
+                    u["trips_count"] = u.get("trips_count", 0) + 1
+                    break
+            _save_users(users)
+        
         return {"success": True, "data": result}
     except Exception as e:
         import traceback
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/trips")
+def get_trips(current_user: dict = Depends(get_current_user)):
+    user_trips = [t["trip"] for t in _load_trips() if t["user_id"] == current_user["id"]]
+    # Sort by created_at descending if available
+    user_trips.sort(key=lambda x: x.get("created_at", ""), reverse=True)
+    return {"trips": user_trips}
 
 
 @app.get("/api/destinations")

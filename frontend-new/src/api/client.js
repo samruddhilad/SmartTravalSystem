@@ -33,6 +33,7 @@ export const authApi = {
   login:    (data) => client.post('/api/auth/login', data),
   register: (data) => client.post('/api/auth/register', data),
   me:       ()     => client.get('/api/auth/me'),
+  updateMe: (data) => client.put('/api/auth/me', data),
 };
 
 // ── Travel API ────────────────────────────────────────────────────────────────
@@ -44,4 +45,5 @@ export const travelApi = {
   getAlternativePlan: (data)   => client.post('/api/alternative-plan', data),
   getMoods:           ()       => client.get('/api/dataset/moods'),
   getInterests:       ()       => client.get('/api/dataset/interests'),
+  getTrips:           ()       => client.get('/api/trips'),
 };
