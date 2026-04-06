@@ -204,16 +204,16 @@ export default function ResultsPage() {
             </div>
 
             {/* Hidden gems */}
-            <div className="bento-card bento-mint">
+            <div className="bento-card bento-sky">
               <h3 style={{marginBottom:'1rem',fontSize:'1rem'}}>💎 Hidden Gems</h3>
               <div className="gem-cards">
                 {gems.map(g=>(
-                  <div className="gem-card" key={g.id} style={{background:'rgba(255,255,255,0.5)'}}>
+                  <div className="gem-card bento-lavender" key={g.id}>
                     <div className="gem-name">{g.name}</div>
                     <div className="gem-state">📍 {g.state} · {fmt(g.avg_cost_per_day)}/day</div>
-                    <div className="gem-desc">{g.description}</div>
+                    <div className="gem-desc" style={{marginBottom:'0.75rem', fontSize:'0.875rem', opacity:0.9}}>{g.description}</div>
                     <div style={{display:'flex',gap:'0.3rem',flexWrap:'wrap'}}>
-                      {g.best_for?.map(t=><span className="badge badge-mint" key={t}>{t.replace(/_/g,' ')}</span>)}
+                      {g.best_for?.map(t=><span className="badge badge-sky" key={t}>{t.replace(/_/g,' ')}</span>)}
                     </div>
                   </div>
                 ))}

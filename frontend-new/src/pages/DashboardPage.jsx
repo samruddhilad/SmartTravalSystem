@@ -8,16 +8,40 @@ import Sidebar from '../components/Sidebar';
 const moodColors = { relaxed:'bento-mint', adventure:'bento-lavender', romantic:'bento-pink', spiritual:'bento-peach', cultural:'bento-sky', fun:'bento-pink', reflective:'bento-lavender' };
 
 export default function DashboardPage() {
-  const { user, logout } = useAuth();
+  const { user, login, register, logout, updateUser } = useAuth();
   const navigate = useNavigate();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebar, setMobileSidebar] = useState(false);
+  
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editForm, setEditForm] = useState({ first_name: '', last_name: '' });
+  const [isSaving, setIsSaving] = useState(false);
 
   const raw = localStorage.getItem('voyager-itinerary');
   const lastTrip = raw ? (() => { try { return JSON.parse(raw); } catch { return null; } })() : null;
   const dest = lastTrip?.destination;
 
   const handleLogout = () => { logout(); navigate('/login'); };
+
+  const startEditing = () => {
+    setEditForm({ first_name: user?.first_name || '', last_name: user?.last_name || '' });
+    setIsEditingName(true);
+  };
+
+  const handleSaveName = async () => {
+    setIsSaving(true);
+    try {
+      if (updateUser) {
+        await updateUser(editForm.first_name, editForm.last_name);
+      }
+      setIsEditingName(false);
+    } catch(err) {
+      console.error(err);
+      alert("Failed to update name");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <div style={{minHeight:'100vh',paddingTop:'64px',background:'var(--cc-bg)'}}>
@@ -81,10 +105,26 @@ export default function DashboardPage() {
             <div style={{width:'64px',height:'64px',borderRadius:'50%',background:'var(--grad-lavender)',color:'white',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'var(--font-display)',fontSize:'1.5rem',fontWeight:900,boxShadow:'4px 4px 12px rgba(196,181,253,0.5)'}}>
               {user?.avatar_initials || 'VU'}
             </div>
-            <div>
-              <div style={{fontFamily:'var(--font-display)',fontWeight:900,fontSize:'1rem'}}>{user?.first_name} {user?.last_name}</div>
-              <div style={{fontSize:'0.75rem',color:'var(--cc-text-muted)'}}>{user?.email}</div>
-            </div>
+            
+            {isEditingName ? (
+              <div style={{display:'flex', flexDirection:'column', gap:'0.5rem', width:'100%'}}>
+                <input type="text" value={editForm.first_name} onChange={e=>setEditForm({...editForm, first_name: e.target.value})} placeholder="First Name" className="text-input" style={{padding:'0.5rem'}} />
+                <input type="text" value={editForm.last_name} onChange={e=>setEditForm({...editForm, last_name: e.target.value})} placeholder="Last Name" className="text-input" style={{padding:'0.5rem'}} />
+                <div style={{display:'flex', gap:'0.5rem', justifyContent:'center'}}>
+                  <button onClick={handleSaveName} disabled={isSaving} className="btn btn-primary btn-sm">{isSaving ? '...' : 'Save'}</button>
+                  <button onClick={()=>setIsEditingName(false)} className="btn btn-secondary btn-sm">Cancel</button>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <div style={{fontFamily:'var(--font-display)',fontWeight:900,fontSize:'1rem'}}>
+                  {user?.first_name} {user?.last_name}
+                  <button onClick={startEditing} style={{background:'none',border:'none',cursor:'pointer',marginLeft:'0.5rem',fontSize:'0.875rem'}}>✏️</button>
+                </div>
+                <div style={{fontSize:'0.75rem',color:'var(--cc-text-muted)'}}>{user?.email}</div>
+              </div>
+            )}
+            
             <button onClick={handleLogout} className="btn btn-secondary btn-sm" style={{marginTop:'auto'}}>🚪 Sign Out</button>
           </div>
         </div>
