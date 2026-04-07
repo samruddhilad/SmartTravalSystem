@@ -11,27 +11,29 @@ pipeline {
 
         stage('Build') {
             steps {
-                echo "Installing dependencies"
-                bat 'pip install -r requirements.txt'
+                echo "Installing Python dependencies"
+                bat '"C:\\Users\\naren\\AppData\\Local\\Programs\\Python\\Python312\\python.exe" -m pip install -r requirements.txt'
             }
         }
 
         stage('Docker Build') {
             steps {
-                bat 'docker build -t smart-travel .'
+                echo "Building Docker Image"
+                bat 'docker build -t smart-travel-planner .'
             }
         }
 
         stage('Deploy') {
             steps {
-                bat 'docker run -d -p 5000:5000 smart-travel'
+                echo "Running Docker Container"
+                bat 'docker run -d -p 5000:5000 smart-travel-planner'
             }
         }
 
         stage('Test') {
             steps {
-                echo "Running automated test"
-                bat 'python test.py'
+                echo "Running Test Script"
+                bat '"C:\\Users\\naren\\AppData\\Local\\Programs\\Python\\Python312\\python.exe" test.py'
             }
         }
 
