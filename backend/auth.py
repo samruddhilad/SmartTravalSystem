@@ -148,7 +148,7 @@ def register(body: RegisterRequest):
         "email": body.email.lower().strip(),
         "first_name": fn,
         "last_name": ln,
-        "password_hash": pwd_ctx.hash(body.password),
+        "password_hash": pwd_ctx.hash(body.password[:72]),
         "created_at": datetime.now(timezone.utc).isoformat(),
         "trips_count": 0,
         "avatar_initials": ((fn[:1] + ln[:1]) or "VU").upper(),
@@ -163,7 +163,7 @@ def register(body: RegisterRequest):
 @router.post("/login", response_model=TokenResponse)
 def login(body: LoginRequest):
     user = _find_user_by_email(body.email)
-    if not user or not pwd_ctx.verify(body.password, user["password_hash"]):
+    if not user or not pwd_ctx.verify(body.password[:72], user["password_hash"]):
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
     token = _create_token(user["id"])
